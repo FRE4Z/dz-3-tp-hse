@@ -29,6 +29,27 @@ run_reporter() {
     docker run --rm -v "$DATA_DIR:/data" data-reporter
 }
 
+structure() {
+    echo "Project structure:"
+    find . -type f -not -path "./data/*" -not -path "./.git/*" | sort
+}
+
+clear_data() {
+    echo "Clearing data directory..."
+    rm -f "$DATA_DIR"/*.csv "$DATA_DIR"/*.html
+    echo "Data cleared. Folder $DATA_DIR is now empty."
+}
+
+inside_generator() {
+    echo "Contents of /data from inside generator container:"
+    docker run --rm -v "$DATA_DIR:/data" data-generator ls -la /data
+}
+
+inside_reporter() {
+    echo "Contents of /data from inside reporter container:"
+    docker run --rm -v "$DATA_DIR:/data" data-reporter ls -la /data
+}
+
 case "$1" in
     build_generator)
         build_generator
@@ -45,8 +66,20 @@ case "$1" in
     run_reporter)
         run_reporter
         ;;
+    structure)
+        structure
+        ;;
+    clear_data)
+        clear_data
+        ;;
+    inside_generator)
+        inside_generator
+        ;;
+    inside_reporter)
+        inside_reporter
+        ;;
     *)
-        echo "Usage: $0 {build_generator|run_generator|create_local_data|build_reporter|run_reporter}"
+        echo "Usage: $0 {build_generator|run_generator|create_local_data|build_reporter|run_reporter|structure|clear_data|inside_generator|inside_reporter}"
         exit 1
         ;;
 esac
